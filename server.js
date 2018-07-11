@@ -1,5 +1,5 @@
 // set up ========================
-var env = require('dotenv');
+var env = require('dotenv').config();
 var express  = require('express');
 var app      = express();   
 const bodyParser = require('body-parser');
@@ -16,9 +16,9 @@ var db = admin.firestore();
 const webpush = require('web-push');
 
 webpush.setVapidDetails(
-  'mailto:me@rncrtr.in',
-  'BC1qaKiOtzHYJ_1ZC0pODkVDMuwa-8VHkxNawBvVKBRDkrauLrb0B9Lj5u9TiBm9HjJYo-io_MWSSSn2fii3YW4',
-  'REsr8ZCOocyZfKjrZ6ybMb5bmypdLINCzzohZHJgN30'
+  process.env.WEBPUSH_EMAIL,
+  process.env.WEBPUSH_VAPID_PUBLIC_KEY,
+  process.env.WEBPUSH_VAPID_PRIVATE_KEY
 ); 
 
 // configuration =================

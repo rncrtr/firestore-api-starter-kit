@@ -46,10 +46,12 @@ To run the api, simply type npm start while in the project directory.
 So, this would be:
 
 ```
+// NOTE: don't type the $
 $ cd path/to/project
 ```
 
 ```
+// NOTE: don't type the $
 $ npm start
 ```
 
@@ -58,7 +60,8 @@ You should see the output in terminal say "app listening on port 8081" or simila
 To test out your setup to see if Cloud Firestore is returning data, you can run this command (which sends a GET request to the Firestore server) in terminal:
 
 ```
-curl localhost:8081/api/posts 
+// NOTE: don't type the $
+$ curl localhost:8081/api/posts 
 ```
 Be sure to edit this command if you've changed the collection variable around line 24 in server.js.
 

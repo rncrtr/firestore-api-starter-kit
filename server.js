@@ -1,98 +1,48 @@
 // set up ========================
-var env = require('dotenv').config();
-var express  = require('express');
-var app      = express();   
+const express  = require('express');
+const app      = express();   
 const bodyParser = require('body-parser');
 const cors = require('cors');
 // firebase
-var admin = require("firebase-admin");
-var serviceAccount = require("./serviceAccountKey.json");
-const functions = require('firebase-functions');
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://whiteflagmobile.firebaseio.com"
+  databaseURL: "REPLACE WITH DATABASEURL FROM SERVICE ACCOUNTS PAGE"
 });
-var db = admin.firestore();
-const webpush = require('web-push');
-
-webpush.setVapidDetails(
-  process.env.WEBPUSH_EMAIL,
-  process.env.WEBPUSH_VAPID_PUBLIC_KEY,
-  process.env.WEBPUSH_VAPID_PRIVATE_KEY
-); 
+const db = admin.firestore();
 
 // configuration =================
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(__dirname + '/app'));
-
-// PUSH SUBS
-app.post('/api/push/sub',function(req,res){
-  // console.log(req.body);
-  db.collection('subscriptions').add(req.body).then(function(resp){
-    //console.log(resp);
-    res.status(200).json(resp);
-  }).catch(function(err){
-    //console.log('ERR: ',err);
-    res.status(500).json(err);
-  });
-});
-
-// SEND PUSH MESSAGE
-app.post('/api/push/sendpn',function(req,res){
-  //console.log(req.body.data);
-  db.collection('subscriptions').get().then((snapshot) => {
-    snapshot.forEach((sub) => {
-      var thissub = sub.data();
-      //console.log(thissub);
-      var pushConfig = {
-        endpoint: thissub.endpoint,
-        keys: {
-          auth: thissub.keys.auth,
-          p256dh: thissub.keys.p256dh
-        }
-      };
-
-      webpush.sendNotification(pushConfig,JSON.stringify(req.body.data))
-        .then(function(resp){
-          console.log(resp);
-          res.status(200).json(resp);
-        })
-        .catch(function(err){
-          console.log(err);
-          res.status(500).json(err);
-        });
-    })
-  });
-});
+app.use(express.static(__dirname + '/'));
 
 
-// ANNOUNCEMENTS
+/////START COPY FOR EACH COLLECTION
 
-// GET LIST
-app.get('/api/anns',function(req,res){
+// POST ROUTES
+let collection = 'posts'; // edit this line to change the name of the collection and routes too
+
+// GET LIST: /api/posts (default)
+app.get('/api/'+collection,function(req,res){
   var rows = [];
-  db.collection('announcements').get().then((snapshot) => {
+  db.collection(collection).get().then((snapshot) => {
       snapshot.forEach((doc) => {
-        //console.log(doc.id, '=>', doc.data());
         var thisrow = doc.data();
-        //console.log(thisrow);
         thisrow.id = doc.id;
         rows.push(thisrow);
       });
-      //console.log(rows);
       res.send(rows);
     })
     .catch((err) => {
-      console.log('Error getting documents', err);
       res.status(500).json(err);
     });
 });
 
-// ADD
-app.post('/api/anns/add',function(req,res){
+// ADD: /api/posts/add (default)
+app.post('/api/'+collection+'/add',function(req,res){
   console.log(req.body);
-  db.collection('announcements').add(req.body.data).then(function(resp){
+  db.collection(collection).add(req.body.data).then(function(resp){
     console.log(resp);
     res.status(200).json(resp);
   }).catch(function(err){
@@ -102,49 +52,41 @@ app.post('/api/anns/add',function(req,res){
   
 });
 
-// UPDATE
-app.put('/api/anns/:id',function(req,res){
+// UPDATE: /api/posts/123 (default)
+app.put('/api/'+collection+'/:id',function(req,res){
   var id = req.params.id;
-  db.collection('announcements').doc(id).update(req.body.data).then(function(resp){
-    console.log(resp);
+  db.collection(collection).doc(id).update(req.body.data).then(function(resp){
     res.status(200).json(resp);
   }).catch(function(err){
-    console.log('ERR: ',err);
     res.status(500).json(err);
   });
 });
 
-// REORDER
-app.post('/api/anns/:id/reorder',function(req,res){
+// SINGLE FIELD UPDATE: /api/posts/123/updatefield (default)
+app.post('/api/'+collection+'/:id/updatefield',function(req,res){
   var id = req.params.id;
-  var data = req.body.data;
-  db.collection('announcements').doc(id).update(data).then(function(resp){
-    console.log(resp);
+  var data = req.body;
+  db.collection(collection).doc(id).update(data).then(function(resp){
     res.status(200).json(resp);
   }).catch(function(err){
-    console.log('ERR: ',err);
     res.status(500).json(err);
   });
 });
 
-// DELETE
-app.delete('/api/anns/:id',function(req,res){
+// DELETE: /api/posts/123 (default)
+app.delete('/api/'+collection+'/:id',function(req,res){
   var id = req.params.id;
-  db.collection('announcements').doc(id).delete().then(function(resp){
-    console.log(resp);
+  db.collection(collection).doc(id).delete().then(function(resp){
     res.status(200).json(resp);
   }).catch(function(err){
-    console.log('ERR: ',err);
     res.status(500).json(err);
   });
 });
 
-app.get('*', function(req, res) { 
-  res.sendFile(__dirname + '/app/index.html')
-});
+/////END COPY FOR EACH COLLECTION
 
-// listen (start app with node server.js) ======================================
 
+// SET PORT AND OUTPUT RUNNING MESSAGE ======================================
 var port = 8081;
 app.listen(port);
 console.log("App listening on port "+port);

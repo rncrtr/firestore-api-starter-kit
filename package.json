@@ -1,9 +1,9 @@
 {
-  "name": "whiteflag-api",
+  "name": "firestore-api-starter-kit",
   "private": true,
   "version": "1.0.0",
-  "description": "White Flag Calvary Mobile",
-  "repository": "https://github.com/rncrtr/whiteflag-api",
+  "description": "Firestore API App",
+  "repository": "https://github.com/rncrtr/firestore-api-starter-kit",
   "license": "MIT",
   "devDependencies": {
     "http-server": "^0.11.1"
@@ -12,14 +12,10 @@
     "body-parser": "^1.18.3",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
-    "firebase-admin": "^5.12.1",
-    "firebase-functions": "^1.1.0",
-    "web-push": "^3.3.2"
+    "firebase-admin": "^5.12.1"
   },
   "scripts": {
     "update-deps": "npm update",
-    "starthttp": "http-server -a localhost -p 8080 -c-1 ./app",
-    "start": "node server.js",
-    "web-push": "web-push"
+    "start": "node server.js"
   }
 }
